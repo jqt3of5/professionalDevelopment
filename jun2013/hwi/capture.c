@@ -18,46 +18,64 @@ int writeReg(int fd, char reg, char value);
 int readReg(int fd, char reg, char * value, int size);
 void swap(union sensor_raw * data);
 
-int main()
+char myError[200];
+
+bool init(FILE &* fd)
 {
-  if ((fd = open(fileName, O_RDWR)) < 0) {
-      printf("Failed to open the i2c bus error?%d\n ", errno);
-        return 0;
+    if ((fd = open(fileName, O_RDWR)) < 0) {
+        sprintf(myError,"Failed to open the i2c bus error?%d\n ", errno);
+        return false;
     }
 
     if (ioctl(fd,I2C_SLAVE,address) < 0) {
-        printf("Failed to acquire bus access and/or talk to slave.\n");
-	return 0;
+        sprintf(myError,"Failed to acquire bus access and/or talk to slave.\n");
+	return false;
     }
 
-    //==== Configuration =================================
+    return true;
+}
 
-    //Clear sleep bits
-    writeReg(fd, 0x6B, 00);
-    writeReg(fd, 0x6C, 00);
-
-    //other stuff?
-  
-
-    union sensor_raw bufx[MAX_SAMPLES] = {0};
+void readMeasurement(FILE * i2cFD, union sensor_raw * data)
+{
     char reg = 0x3B;
-
-    int i = 0;
-    while(1)
-      {
-	if (write(fd, &reg, 1) != 1)
+    if (write(i2cFD, &reg, 1) != 1)
     	  {
 	    fprintf(stderr, "Failed to write\n");
     	    return 0;
     	  }
-    	if (read(fd, &bufx[i], sizeof(union sensor_raw)) != sizeof(union sensor_raw))
+    	if (read(i2cFD, data, sizeof(union sensor_raw)) != sizeof(union sensor_raw))
     	  {
 	    fprintf(stderr, "Failed to read\n");
     	    return 0;
     	  }
     	  swap(&bufx[i]);
+}
 
-	  printf("%d %d %d %d %d %d\n", 
+int main()
+{
+    FILE *i2cFD;
+    //==== Configuration =================================
+    if (!init(i2cFD))
+    {
+    	printf(myError);
+    	return 1;
+    }
+    //Clear sleep bits
+    writeReg(i2cFD, 0x6B, 00);
+    writeReg(i2cFD, 0x6C, 00);
+    //other stuff?
+
+
+    union sensor_raw bufx[MAX_SAMPLES] = {0};
+   
+
+    int i = 0;
+    while(1)
+      {
+	
+          readMeasurement(i2cFD, &bufx[i])
+
+          printf("%d %d %d %d %d %d\n", 
 		 bufx[i].reg.accx, bufx[i].reg.accy, bufx[i].reg.accz, 
 		 bufx[i].reg.gyrox, bufx[i].reg.gyroy, bufx[i].reg.gyroz);
 
