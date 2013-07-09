@@ -44,7 +44,7 @@ int main()
 
           readMeasurement(i2cFD, &bufx[i])
 
-          printf("time: %d | %d %d %d %d %d %d\n", bufx[i].timeStamp,
+          printf("{ \"time\":%d, \"data\":[%d, %d, %d, %d, %d, %d]}\n", bufx[i].timeStamp,
 		 bufx[i].measurement.reg.accx, bufx[i].measurement.reg.accy, bufx[i].measurement.reg.accz, 
 		 bufx[i].measurement.reg.gyrox, bufx[i].measurement.reg.gyroy, bufx[i].measurement.reg.gyroz);
 
