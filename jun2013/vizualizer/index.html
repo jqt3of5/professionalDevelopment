@@ -1,0 +1,59 @@
+<html>
+  <head>
+		<script src="Chart.js"></script>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		
+	</head>
+
+	<body>
+		<canvas id="myChart" width="400" height="400"></canvas>
+		
+		<script>
+		
+		var data = {
+			labels : [1,2,3,4,5],
+			datasets : [
+					{
+			fillColor : "rgba(220,220,220,0.5)",
+			strokeColor : "rgba(220,220,220,1)",
+			pointColor : "rgba(220,220,220,1)",
+			pointStrokeColor : "#fff",
+			data : [1,2,3,4,5]
+					}
+				]
+		}
+		$(document).ready(function(){
+				//Get the context of the canvas element we want to select
+			var ctx = document.getElementById("myChart").getContext("2d");
+			var options = { animation : false };
+			var myNewChart = new Chart(ctx).Line(data, options);
+		
+			window.setInterval(function()
+				{ 
+				var val = data.labels.pop(); 
+				data.labels.push(val); 
+				data.labels.push(val+1); 
+				
+				
+				val = data.datasets[0].data.pop();
+				data.datasets[0].data.push(val);
+				data.datasets[0].data.push(val+1);
+				
+				
+				if (data.labels.length > 15) {
+					data.datasets[0].data.shift();
+					data.labels.shift(); 
+					}
+				var myNewChart = new Chart(ctx).Line(data, options); 
+					
+				}, 10000);
+		
+		});
+		
+		
+			
+			
+		</script>
+	</body>
+
+<html>
