@@ -40,7 +40,10 @@
 				var data = e.data;
 				
 				data.labels.push(data.time);
-				data.dataset[0].data.push(data.gx);
+				data.dataset[0].data.push(data.data[0]);
+				
+				//data.dataset[1].data.push(data.data[1]);
+				//data.dataset[2].data.push(data.data[2]);
 				
 				if (data.labels.length > 15) {
 					data.datasets[0].data.shift();
