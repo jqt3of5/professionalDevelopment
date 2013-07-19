@@ -11,14 +11,14 @@
 		<script>
 		
 		var data = {
-			labels : [1,2,3,4,5],
+			labels : [],
 			datasets : [
 					{
 			fillColor : "rgba(220,220,220,0.5)",
 			strokeColor : "rgba(220,220,220,1)",
 			pointColor : "rgba(220,220,220,1)",
 			pointStrokeColor : "#fff",
-			data : [1,2,3,4,5]
+			data : []
 					}
 				]
 		}
@@ -27,26 +27,31 @@
 			var ctx = document.getElementById("myChart").getContext("2d");
 			var options = { animation : false };
 			var myNewChart = new Chart(ctx).Line(data, options);
-		
-			window.setInterval(function()
-				{ 
-				var val = data.labels.pop(); 
-				data.labels.push(val); 
-				data.labels.push(val+1); 
+			var connection = new WebScoket('ws://localhost/rpi');
+			
+			connection.onopen = function(){
+				console.log("We connected!");
+			}
+			connection.onclose = function(){
+				console.log("We Closed!");
+			}
+			
+			connection.onmessage = function(e){
+				var data = e.data;
 				
-				
-				val = data.datasets[0].data.pop();
-				data.datasets[0].data.push(val);
-				data.datasets[0].data.push(val+1);
-				
+				data.labels.push(data.time);
+				data.dataset[0].data.push(data.gx);
 				
 				if (data.labels.length > 15) {
 					data.datasets[0].data.shift();
 					data.labels.shift(); 
 					}
-				var myNewChart = new Chart(ctx).Line(data, options); 
-					
-				}, 10000);
+				
+			}
+			window.setInterval(function()
+				{
+					var myNewChart = new Chart(ctx).Line(data, options); 
+				}, 100);
 		
 		});
 		
